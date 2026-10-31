@@ -1,5 +1,7 @@
 ﻿# Arcaence labs
 
+[![CI](https://github.com/saurabhsmahajan/arcaence-labs/actions/workflows/ci.yml/badge.svg)](https://github.com/saurabhsmahajan/arcaence-labs/actions/workflows/ci.yml)
+
 Hands-on labs behind the [Arcaence](https://arcaence.com) blog.
 
 > **Read this first.** Every lab here uses synthetic data and simulated systems. Nothing is production code, and none of it is employer work. Numbers are lab numbers, not production figures.
@@ -14,4 +16,5 @@ Hands-on labs behind the [Arcaence](https://arcaence.com) blog.
 
 - One folder per lab, each with its own README, tests and `package.json`.
 - Private keys and `.env` files are git-ignored. Labs generate their own keys on first run.
+
 
