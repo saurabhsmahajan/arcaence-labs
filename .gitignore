@@ -1,0 +1,14 @@
+﻿# Secrets and keys: never commit these
+*.pem
+*.key
+.env
+.env.*
+
+# Dependencies and build output
+node_modules/
+dist/
+
+# Local noise
+.DS_Store
+Thumbs.db
+*.log

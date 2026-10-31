@@ -1,0 +1,25 @@
+{
+  "spiffe://storefront.local/agents/shopper": {
+    "scopes": [
+      "catalog:read",
+      "order:create",
+      "order:read",
+      "payment:charge",
+      "refund:request"
+    ],
+    "delegatesTo": ["spiffe://storefront.local/agents/order"]
+  },
+  "spiffe://storefront.local/agents/order": {
+    "scopes": [
+      "order:create",
+      "order:read",
+      "payment:charge",
+      "refund:request"
+    ],
+    "delegatesTo": ["spiffe://storefront.local/agents/payment"]
+  },
+  "spiffe://storefront.local/agents/payment": {
+    "scopes": ["payment:charge"],
+    "delegatesTo": []
+  }
+}
