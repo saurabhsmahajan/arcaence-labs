@@ -129,3 +129,32 @@ def naive_status(txn_id: str) -> str:
         return con.execute("SELECT status FROM transactions WHERE txn_id = ?", (txn_id,)).fetchone()[0]
     finally:
         con.close()
+
+
+
+# ---- helpers for attacks 7 and 8 -------------------------------------------
+
+import json
+
+
+def naive_query(sql: str, params: tuple = ()) -> list[tuple]:
+    """Read-only query against the naive copy (for measuring, never for attacking)."""
+    con = sqlite3.connect(f"{Path(naive_server.NAIVE_DB).as_uri()}?mode=ro", uri=True)
+    try:
+        return con.execute(sql, params).fetchall()
+    finally:
+        con.close()
+
+
+def token_from(text: str) -> str | None:
+    """Pull the confirmation token out of a dry-run response."""
+    try:
+        return json.loads(text).get("confirmation_token")
+    except (ValueError, AttributeError):
+        return None
+
+
+async def role_seen(client) -> str:
+    """Which role does the scoped server say it is running as?"""
+    result = await client.read_resource("payments://policy/refund-limits")
+    return json.loads(result.contents[0].text)["your_role"]
