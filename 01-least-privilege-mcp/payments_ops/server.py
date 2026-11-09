@@ -7,7 +7,7 @@ from pydantic import Field
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
-from payments_ops.ops_store import create_token
+from payments_ops.ops_store import RefundRejected, create_token, redeem_token
 from payments_ops.policy import ROLE_LIMITS, current_role, refund_limit
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "payments.db"
@@ -78,12 +78,20 @@ def issue_refund(
         str,
         Field(min_length=5, max_length=200, description="Why the refund is being issued"),
     ],
+    confirmation_token: Annotated[
+        str | None,
+        Field(
+            pattern=r"^[A-Za-z0-9_-]{22}$",
+            description="Token from a dry run. Omit it to run a dry run.",
+        ),
+    ] = None,
 ) -> dict:
-    """DRY RUN of a refund. Validates the refund and previews it; nothing is refunded.
+    """Refund a captured transaction in two phases.
 
-    Checks the caller's role limit, that the transaction exists and is captured,
-    and that the amount does not exceed the original payment. Returns a preview
-    and a single-use confirmation token valid for 10 minutes.
+    Without confirmation_token this is a DRY RUN: it validates and previews the
+    refund, refunds nothing, and returns a single-use token valid for 10 minutes.
+    To execute, a human should review the preview, then call again with the same
+    txn_id, amount_minor and reason plus that confirmation_token.
     """
     role = current_role()
     limit = refund_limit(role)
@@ -115,20 +123,37 @@ def issue_refund(
             f"Refund of {amount_minor} is larger than the original payment of {txn_amount}."
         )
 
-    token, expires_at = create_token(txn_id, amount_minor, role, reason)
+    if confirmation_token is None:
+        token, expires_at = create_token(txn_id, amount_minor, role, reason)
+        return {
+            "mode": "dry_run",
+            "refunded": False,
+            "txn_id": txn_id,
+            "merchant_id": merchant_id,
+            "refund_amount_minor": amount_minor,
+            "currency": currency,
+            "role": role,
+            "confirmation_token": token,
+            "expires_at": expires_at,
+            "next_step": "Nothing has been refunded yet. A human should review this preview first.",
+        }
+
+    try:
+        refund_id, created_at = redeem_token(
+            confirmation_token, txn_id, amount_minor, role, reason, txn_amount
+        )
+    except RefundRejected as exc:
+        raise ToolError(str(exc)) from exc
     return {
-        "mode": "dry_run",
-        "refunded": False,
+        "mode": "executed",
+        "refunded": True,
+        "refund_id": refund_id,
         "txn_id": txn_id,
-        "merchant_id": merchant_id,
         "refund_amount_minor": amount_minor,
         "currency": currency,
         "role": role,
-        "confirmation_token": token,
-        "expires_at": expires_at,
-        "next_step": "Nothing has been refunded yet. A human should review this preview first.",
+        "created_at": created_at,
     }
-
 @mcp.resource("payments://policy/refund-limits")
 def refund_limits() -> dict:
     """Refund limits per role (minor units), plus the role this server is running as."""
