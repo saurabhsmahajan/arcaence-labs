@@ -7,6 +7,7 @@ from pydantic import Field
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
+from payments_ops.ops_store import create_token
 from payments_ops.policy import ROLE_LIMITS, current_role, refund_limit
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "payments.db"
@@ -65,6 +66,68 @@ def get_payment_events(txn_id: TxnId) -> list[dict]:
         raise ToolError(f"No PSP events found for transaction {txn_id!r}")
     keys = ("event_id", "event_type", "amount_minor", "occurred_at", "psp_reference")
     return [dict(zip(keys, r)) for r in rows]
+
+@mcp.tool()
+def issue_refund(
+    txn_id: TxnId,
+    amount_minor: Annotated[
+        int,
+        Field(gt=0, description="Refund amount in minor units (for example paise or cents)"),
+    ],
+    reason: Annotated[
+        str,
+        Field(min_length=5, max_length=200, description="Why the refund is being issued"),
+    ],
+) -> dict:
+    """DRY RUN of a refund. Validates the refund and previews it; nothing is refunded.
+
+    Checks the caller's role limit, that the transaction exists and is captured,
+    and that the amount does not exceed the original payment. Returns a preview
+    and a single-use confirmation token valid for 10 minutes.
+    """
+    role = current_role()
+    limit = refund_limit(role)
+    # Role check comes first, before any data lookup: a role with no refund
+    # rights cannot even probe which transactions exist.
+    if amount_minor > limit:
+        raise ToolError(
+            f"Refund of {amount_minor} exceeds the limit of {limit} for your role ({role})."
+        )
+
+    con = _connect()
+    try:
+        row = con.execute(
+            "SELECT merchant_id, amount_minor, currency, status "
+            "FROM transactions WHERE txn_id = ?",
+            (txn_id,),
+        ).fetchone()
+    finally:
+        con.close()
+    if row is None:
+        raise ToolError(f"No transaction found with id {txn_id!r}")
+    merchant_id, txn_amount, currency, status = row
+    if status != "captured":
+        raise ToolError(
+            f"Transaction {txn_id} has status {status!r}; only captured transactions can be refunded."
+        )
+    if amount_minor > txn_amount:
+        raise ToolError(
+            f"Refund of {amount_minor} is larger than the original payment of {txn_amount}."
+        )
+
+    token, expires_at = create_token(txn_id, amount_minor, role, reason)
+    return {
+        "mode": "dry_run",
+        "refunded": False,
+        "txn_id": txn_id,
+        "merchant_id": merchant_id,
+        "refund_amount_minor": amount_minor,
+        "currency": currency,
+        "role": role,
+        "confirmation_token": token,
+        "expires_at": expires_at,
+        "next_step": "Nothing has been refunded yet. A human should review this preview first.",
+    }
 
 @mcp.resource("payments://policy/refund-limits")
 def refund_limits() -> dict:

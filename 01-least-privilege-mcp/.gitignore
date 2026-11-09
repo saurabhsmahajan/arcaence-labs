@@ -1,3 +1,4 @@
 data/payments.db
 __pycache__/
 .pytest_cache/
+data/ops.db
