@@ -1,6 +1,9 @@
 """Least-privilege payments-ops MCP server (scoped version)."""
 import sqlite3
 from pathlib import Path
+from typing import Annotated
+
+from pydantic import Field
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
@@ -8,7 +11,10 @@ from mcp.server.mcpserver.exceptions import ToolError
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "payments.db"
 
 mcp = MCPServer("payments-ops")
-
+TxnId = Annotated[
+    str,
+    Field(pattern=r"^txn_\d{6}$", description="Transaction ID, for example 'txn_000123'"),
+]
 
 def _connect():
     """Open the database read-only: even a bug in a tool cannot write."""
@@ -16,7 +22,7 @@ def _connect():
 
 
 @mcp.tool()
-def get_transaction(txn_id: str) -> dict:
+def get_transaction(txn_id: TxnId) -> dict:
     """Look up one transaction by its ID, for example 'txn_000123'.
 
     Returns the merchant, amount in minor units (for example paise or cents),
@@ -38,7 +44,7 @@ def get_transaction(txn_id: str) -> dict:
     return dict(zip(keys, row))
 
 @mcp.tool()
-def get_payment_events(txn_id: str) -> list[dict]:
+def get_payment_events(txn_id: TxnId) -> list[dict]:
     """List the payment provider (PSP) events for one transaction, oldest first.
 
     Each event has an event ID, type (for example authorization, capture,
