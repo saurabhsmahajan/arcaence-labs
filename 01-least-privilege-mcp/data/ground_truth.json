@@ -1,0 +1,182 @@
+[
+  {
+    "txn_id": "txn_001751",
+    "root_cause": "missing_ledger_entry",
+    "explanation": "The PSP captured and settlement paid out, but no ledger entries were ever posted.",
+    "case_id": "case_001"
+  },
+  {
+    "txn_id": "txn_000065",
+    "root_cause": "settlement_cutoff_mismatch",
+    "explanation": "Captured before the 18:00 UTC cut-off but included in the next day's settlement batch.",
+    "case_id": "case_002"
+  },
+  {
+    "txn_id": "txn_001025",
+    "root_cause": "webhook_replay",
+    "explanation": "The PSP capture webhook was delivered twice with the same reference and the ledger posted it twice.",
+    "case_id": "case_003"
+  },
+  {
+    "txn_id": "txn_001552",
+    "root_cause": "stuck_refund",
+    "explanation": "A refund was requested but never completed; no ledger reversal and the status is still refund_pending.",
+    "case_id": "case_004"
+  },
+  {
+    "txn_id": "txn_001252",
+    "root_cause": "webhook_replay",
+    "explanation": "The PSP capture webhook was delivered twice with the same reference and the ledger posted it twice.",
+    "case_id": "case_005"
+  },
+  {
+    "txn_id": "txn_000120",
+    "root_cause": "legitimate_refund",
+    "explanation": "Not an error: a refund was requested and completed, and the ledger reversal was booked.",
+    "case_id": "case_006"
+  },
+  {
+    "txn_id": "txn_001821",
+    "root_cause": "stuck_refund",
+    "explanation": "A refund was requested but never completed; no ledger reversal and the status is still refund_pending.",
+    "case_id": "case_007"
+  },
+  {
+    "txn_id": "txn_000363",
+    "root_cause": "legitimate_refund",
+    "explanation": "Not an error: a refund was requested and completed, and the ledger reversal was booked.",
+    "case_id": "case_008"
+  },
+  {
+    "txn_id": "txn_000890",
+    "root_cause": "missing_ledger_entry",
+    "explanation": "The PSP captured and settlement paid out, but no ledger entries were ever posted.",
+    "case_id": "case_009"
+  },
+  {
+    "txn_id": "txn_001185",
+    "root_cause": "missing_ledger_entry",
+    "explanation": "The PSP captured and settlement paid out, but no ledger entries were ever posted.",
+    "case_id": "case_010"
+  },
+  {
+    "txn_id": "txn_001629",
+    "root_cause": "duplicate_capture",
+    "explanation": "Capture was retried after a timeout; the PSP processed both (two captures, different references) but the ledger booked only one.",
+    "case_id": "case_011"
+  },
+  {
+    "txn_id": "txn_001284",
+    "root_cause": "missing_ledger_entry",
+    "explanation": "The PSP captured and settlement paid out, but no ledger entries were ever posted.",
+    "case_id": "case_012"
+  },
+  {
+    "txn_id": "txn_001057",
+    "root_cause": "webhook_replay",
+    "explanation": "The PSP capture webhook was delivered twice with the same reference and the ledger posted it twice.",
+    "case_id": "case_013"
+  },
+  {
+    "txn_id": "txn_001381",
+    "root_cause": "duplicate_capture",
+    "explanation": "Capture was retried after a timeout; the PSP processed both (two captures, different references) but the ledger booked only one.",
+    "case_id": "case_014"
+  },
+  {
+    "txn_id": "txn_001436",
+    "root_cause": "duplicate_capture",
+    "explanation": "Capture was retried after a timeout; the PSP processed both (two captures, different references) but the ledger booked only one.",
+    "case_id": "case_015"
+  },
+  {
+    "txn_id": "txn_000810",
+    "root_cause": "legitimate_refund",
+    "explanation": "Not an error: a refund was requested and completed, and the ledger reversal was booked.",
+    "case_id": "case_016"
+  },
+  {
+    "txn_id": "txn_000221",
+    "root_cause": "legitimate_refund",
+    "explanation": "Not an error: a refund was requested and completed, and the ledger reversal was booked.",
+    "case_id": "case_017"
+  },
+  {
+    "txn_id": "txn_000040",
+    "root_cause": "webhook_replay",
+    "explanation": "The PSP capture webhook was delivered twice with the same reference and the ledger posted it twice.",
+    "case_id": "case_018"
+  },
+  {
+    "txn_id": "txn_001748",
+    "root_cause": "legitimate_refund",
+    "explanation": "Not an error: a refund was requested and completed, and the ledger reversal was booked.",
+    "case_id": "case_019"
+  },
+  {
+    "txn_id": "txn_000893",
+    "root_cause": "stuck_refund",
+    "explanation": "A refund was requested but never completed; no ledger reversal and the status is still refund_pending.",
+    "case_id": "case_020"
+  },
+  {
+    "txn_id": "txn_000260",
+    "root_cause": "settlement_cutoff_mismatch",
+    "explanation": "Captured before the 18:00 UTC cut-off but included in the next day's settlement batch.",
+    "case_id": "case_021"
+  },
+  {
+    "txn_id": "txn_000869",
+    "root_cause": "settlement_cutoff_mismatch",
+    "explanation": "Captured before the 18:00 UTC cut-off but included in the next day's settlement batch.",
+    "case_id": "case_022"
+  },
+  {
+    "txn_id": "txn_001945",
+    "root_cause": "stuck_refund",
+    "explanation": "A refund was requested but never completed; no ledger reversal and the status is still refund_pending.",
+    "case_id": "case_023"
+  },
+  {
+    "txn_id": "txn_001125",
+    "root_cause": "stuck_refund",
+    "explanation": "A refund was requested but never completed; no ledger reversal and the status is still refund_pending.",
+    "case_id": "case_024"
+  },
+  {
+    "txn_id": "txn_001231",
+    "root_cause": "webhook_replay",
+    "explanation": "The PSP capture webhook was delivered twice with the same reference and the ledger posted it twice.",
+    "case_id": "case_025"
+  },
+  {
+    "txn_id": "txn_001277",
+    "root_cause": "settlement_cutoff_mismatch",
+    "explanation": "Captured before the 18:00 UTC cut-off but included in the next day's settlement batch.",
+    "case_id": "case_026"
+  },
+  {
+    "txn_id": "txn_000933",
+    "root_cause": "duplicate_capture",
+    "explanation": "Capture was retried after a timeout; the PSP processed both (two captures, different references) but the ledger booked only one.",
+    "case_id": "case_027"
+  },
+  {
+    "txn_id": "txn_000766",
+    "root_cause": "missing_ledger_entry",
+    "explanation": "The PSP captured and settlement paid out, but no ledger entries were ever posted.",
+    "case_id": "case_028"
+  },
+  {
+    "txn_id": "txn_000199",
+    "root_cause": "duplicate_capture",
+    "explanation": "Capture was retried after a timeout; the PSP processed both (two captures, different references) but the ledger booked only one.",
+    "case_id": "case_029"
+  },
+  {
+    "txn_id": "txn_000689",
+    "root_cause": "settlement_cutoff_mismatch",
+    "explanation": "Captured before the 18:00 UTC cut-off but included in the next day's settlement batch.",
+    "case_id": "case_030"
+  }
+]
