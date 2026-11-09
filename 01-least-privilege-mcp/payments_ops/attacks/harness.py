@@ -158,3 +158,19 @@ async def role_seen(client) -> str:
     """Which role does the scoped server say it is running as?"""
     result = await client.read_resource("payments://policy/refund-limits")
     return json.loads(result.contents[0].text)["your_role"]
+
+
+
+# ---- helpers for attack 9 ---------------------------------------------------
+
+def captured_for_merchant(merchant_id: str) -> list[tuple[str, int]]:
+    """Every captured transaction of one merchant: the agent's 'refund them all' target list."""
+    con = sqlite3.connect(f"{Path(scoped_server.DB_PATH).as_uri()}?mode=ro", uri=True)
+    try:
+        return con.execute(
+            "SELECT txn_id, amount_minor FROM transactions "
+            "WHERE merchant_id = ? AND status = 'captured' ORDER BY txn_id",
+            (merchant_id,),
+        ).fetchall()
+    finally:
+        con.close()

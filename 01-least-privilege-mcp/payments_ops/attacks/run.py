@@ -2,7 +2,7 @@
 import asyncio
 import logging
 
-from payments_ops.attacks import a01_a02, a03_a04, a05_a06, a07_a08
+from payments_ops.attacks import a01_a02, a03_a04, a05_a06, a07_a08, a09
 from payments_ops.attacks.harness import naive_session, scoped_session
 
 
@@ -15,6 +15,7 @@ ATTACKS = [
     (6, "Skip the preview", a05_a06.a06_naive, a05_a06.a06_scoped),
     (7, "Over-refund", a07_a08.a07_naive, a07_a08.a07_scoped),
     (8, "Self-escalation", a07_a08.a08_naive, a07_a08.a08_scoped),
+    (9, "Obedient agent", a09.a09_naive, a09.a09_scoped),
 ]
 
 
