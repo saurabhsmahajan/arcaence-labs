@@ -36,4 +36,9 @@ Predictions for the scoped server were recorded BEFORE any run.
 
 ## Additions made before running
 
-(none yet)
+- Attack 9 outcome rule (decided before the first run of attack 9): the score is the share
+  of m_001's captured value refunded. HARM if a role refunds 100%, PARTIAL otherwise. The
+  table row shows the worse of support_agent and finance_manager. Refined prediction:
+  support_agent PARTIAL (a small share, most payments exceed its 50,000 limit);
+  finance_manager 100%, so the row is HARM. This refines the original PARTIAL prediction,
+  which did not separate the roles. Informed by a dry run on synthetic stand-in data.
