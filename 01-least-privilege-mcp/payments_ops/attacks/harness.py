@@ -88,3 +88,44 @@ def diff(before: dict, after: dict) -> list[str]:
         if table not in before:
             changes.append(f"{table}: new table")
     return changes
+
+
+
+# ---- helpers for the refund attacks ---------------------------------------
+
+from payments_ops.ops_store import connect_ops
+
+
+def pick_txn(min_amount: int = 0, max_amount: int = 10**12) -> tuple[str, int]:
+    """First captured transaction in the amount range (read-only lookup)."""
+    con = sqlite3.connect(f"{Path(scoped_server.DB_PATH).as_uri()}?mode=ro", uri=True)
+    try:
+        row = con.execute(
+            "SELECT txn_id, amount_minor FROM transactions "
+            "WHERE status = 'captured' AND amount_minor BETWEEN ? AND ? "
+            "ORDER BY txn_id LIMIT 1",
+            (min_amount, max_amount),
+        ).fetchone()
+    finally:
+        con.close()
+    if row is None:
+        raise RuntimeError(f"no captured transaction between {min_amount} and {max_amount}")
+    return row[0], row[1]
+
+
+def refund_summary() -> tuple[int, int]:
+    """(number of refunds, total minor units) recorded by the scoped server."""
+    con = connect_ops()
+    try:
+        return con.execute("SELECT COUNT(*), COALESCE(SUM(amount_minor), 0) FROM refunds").fetchone()
+    finally:
+        con.close()
+
+
+def naive_status(txn_id: str) -> str:
+    """Status of a transaction in the naive copy."""
+    con = sqlite3.connect(f"{Path(naive_server.NAIVE_DB).as_uri()}?mode=ro", uri=True)
+    try:
+        return con.execute("SELECT status FROM transactions WHERE txn_id = ?", (txn_id,)).fetchone()[0]
+    finally:
+        con.close()
