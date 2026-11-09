@@ -7,6 +7,7 @@ from pydantic import Field
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
+from payments_ops.policy import ROLE_LIMITS, current_role, refund_limit
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "payments.db"
 
@@ -64,6 +65,15 @@ def get_payment_events(txn_id: TxnId) -> list[dict]:
         raise ToolError(f"No PSP events found for transaction {txn_id!r}")
     keys = ("event_id", "event_type", "amount_minor", "occurred_at", "psp_reference")
     return [dict(zip(keys, r)) for r in rows]
+
+@mcp.resource("payments://policy/refund-limits")
+def refund_limits() -> dict:
+    """Refund limits per role (minor units), plus the role this server is running as."""
+    return {
+        "limits_minor_units": ROLE_LIMITS,
+        "your_role": current_role(),
+        "your_limit_minor_units": refund_limit(),
+    }
 
 if __name__ == "__main__":
     mcp.run()
