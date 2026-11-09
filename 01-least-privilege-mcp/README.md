@@ -61,10 +61,64 @@ total.
 the first run. The miss was attack 9 (predicted PARTIAL, result HARM)._
 
 ## What broke
-_To fill in._
+
+Problems found while building and testing, with their status.
+
+**In the test bench itself**
+
+- **Fixed: the benchmark had a tell.** The injected fault rows used IDs starting with
+  `inj`, so an agent could have found the faults by pattern instead of by reasoning.
+  Caught before any evaluation; IDs now continue the normal numbering.
+- **Fixed: a measurement bug in attack 10.** My first leak detector flagged an error as
+  an engine leak because it contained the word `sqlite`, which was the attacker's own
+  input echoed back. A match that was part of the input reveals nothing; the detector
+  now ignores it. I found this by reading the actual error text, and it is why I report
+  the fix here instead of only the final table.
+- **Prediction miss: attack 9.** Predicted PARTIAL, result HARM. The prediction did not
+  separate roles; the real result is 22% for `support_agent` and 100% for `finance_manager`.
+
+**In the scoped server (open, not fixed in this version)**
+
+- **No aggregate cap.** Limits apply per refund, not in total. A compromised agent can
+  refund every payment of a merchant, each one within its limit (attack 9).
+- **The confirm step is not a human gate.** The server checks that a preview happened
+  and the token matches; it cannot know whether a person approved. The agent in attack 9
+  confirmed its own previews.
+- **No rate limit.** One transaction per call, but IDs can be enumerated one by one
+  (attack 1).
+- **A preview is issued for a refund that will fail.** The preview does not look at
+  earlier refunds, so a second refund that would exceed the payment gets a preview and a
+  token and is refused only at confirm (attack 7). The money is safe; the review is
+  misleading.
+- **Errors reveal the framework and echo input.** Validation errors name the validation
+  library and repeat the first ~50 characters of the bad input. No database or path
+  details leak, but echoed input is a route for injected text to reach a model (this is
+  what Project 4 tests).
+- **Prompt-argument errors are generic.** A bad argument to a prompt comes back as an
+  opaque protocol error with the reason only in the server log, unlike tool errors,
+  which carry a readable message.
+
+**Something that went wrong in the tooling:** the first version of a tool raised
+`ValueError`. In this SDK version only `ToolError` carries its message to the model; any
+other exception becomes a generic "Error executing tool". Anticipated failures must be
+`ToolError`.
 
 ## When not to use this
-_To fill in._
+
+- **Not for more than one user on one server.** The role comes from the environment of
+  the server process, so over HTTP every client gets the same role. A multi-user
+  deployment needs an authenticated identity (a token) that maps to a role.
+- **Not as a substitute for human approval.** Dry-run then confirm stops accidental
+  execution. It does not stop an agent that confirms for itself. Real approval has to be
+  enforced by the host or out of band.
+- **Not for real money as it stands.** There is no aggregate cap, no rate limit, no
+  authentication and no audit trail of refused attempts.
+- **Not proof about models.** The caller in the harness is a script that makes every
+  call the server accepts. It measures what the server permits, not whether a model
+  would fall for an injection.
+- **Weak evidence by construction.** Synthetic data, ten attacks, and the same author
+  for the defences and the attacks. The predictions were written in advance to limit
+  that bias, but it does not remove it.
 
 ## Cost
 _To fill in._
