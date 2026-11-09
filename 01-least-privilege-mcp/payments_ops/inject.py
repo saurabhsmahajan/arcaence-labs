@@ -65,19 +65,20 @@ def move_to_next_day_batch(con, txn_id):
 
 
 def inject(con, rng):
-    evt = itertools.count(1)
-    led = itertools.count(1)
+        # Continue the normal numbering so injected rows are indistinguishable.
+    evt = itertools.count(con.execute("SELECT COUNT(*) FROM psp_events").fetchone()[0] + 1)
+    led = itertools.count(con.execute("SELECT COUNT(*) FROM ledger_entries").fetchone()[0] + 1)
 
     def add_event(txn_id, etype, amount, when, ref):
         con.execute(
             "INSERT INTO psp_events VALUES (?,?,?,?,?,?)",
-            (f"evt_inj_{next(evt):04d}", txn_id, etype, amount, iso(when), ref),
+            (f"evt_{next(evt):07d}", txn_id, etype, amount, iso(when), ref),
         )
 
     def add_ledger(txn_id, account, direction, amount, when):
         con.execute(
             "INSERT INTO ledger_entries VALUES (?,?,?,?,?,?)",
-            (f"led_inj_{next(led):04d}", txn_id, account, direction, amount, iso(when)),
+            (f"led_{next(led):07d}", txn_id, account, direction, amount, iso(when)),
         )
 
     def capture_of(txn_id):
