@@ -11,7 +11,7 @@ Hands-on labs behind the [Arcaence](https://arcaence.com) blog.
 | Lab | Blog post | Notes | What it shows |
 | --- | --- | --- | --- |
 | [agent-identity](agent-identity/) | [Agent identity is not a service account](https://www.arcaence.com/p/agent-identity-is-not-a-service-account) | — | Delegation between AI agents must narrow at every hop, and the payment agent can never refund |
-| [01-least-privilege-mcp](01-least-privilege-mcp/) | Coming soon | [Project 1 notes (Word)](01-least-privilege-mcp/docs/Project1-Notes.docx) | Scoped tools, dry-run then confirm, and limits enforced in code shrink what a confused or compromised agent can do (10 attacks, naive vs scoped server) |
+| [01-least-privilege-mcp](01-least-privilege-mcp/) | [Predict first, then test](https://www.arcaence.com/p/predict-first-then-test) | [Project 1 notes (Word)](01-least-privilege-mcp/docs/Project1-Notes.docx) | Scoped tools, dry-run then confirm, and limits enforced in code shrink what a confused or compromised agent can do (10 attacks, naive vs scoped server) |
 
 ## Conventions
 
